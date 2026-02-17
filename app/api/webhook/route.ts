@@ -1,28 +1,40 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 
 const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
+  process.env.SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY! // ÖNEMLİ
 );
 
-export async function POST(req: Request) {
-  const body = await req.json();
+export async function POST(req: NextRequest) {
+  try {
+    const body = await req.json();
 
-  if (body.event_type === "subscription.created") {
-    await supabase.from("subscriptions").insert({
-      user_id: body.data.custom_data.user_id,
-      paddle_subscription_id: body.data.id,
-      status: "active"
-    });
+    const eventType = body.event_type;
+
+    // Subscription created veya updated event
+    if (eventType === "subscription.created" || eventType === "subscription.updated") {
+
+      const userId = body.data.custom_data?.user_id;
+
+      // 30 gün featured ver
+      const featuredUntil = new Date();
+      featuredUntil.setDate(featuredUntil.getDate() + 30);
+
+      await supabase
+        .from("seller_profiles")
+        .update({
+          featured_until: featuredUntil.toISOString()
+        })
+        .eq("user_id", userId);
+
+      return NextResponse.json({ success: true });
+    }
+
+    return NextResponse.json({ received: true });
+
+  } catch (error) {
+    console.error("Webhook error:", error);
+    return NextResponse.json({ error: "Webhook failed" }, { status: 500 });
   }
-
-  if (body.event_type === "transaction.completed") {
-    await supabase.rpc("set_featured", {
-      days: 7,
-      uid: body.data.custom_data.user_id
-    });
-  }
-
-  return NextResponse.json({ ok: true });
 }
