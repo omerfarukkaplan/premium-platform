@@ -3,7 +3,7 @@
 export default function SellerDashboard() {
   const handleUpgrade = () => {
     window.Paddle.Checkout.open({
-      items: [{ priceId: "PRI_XXXX" }],
+      items: [{ priceId: "pri_01khp648jrp9ck7wzpdb62qts2" }],
       settings: {
         displayMode: "overlay",
         theme: "dark",
