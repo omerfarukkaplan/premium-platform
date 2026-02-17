@@ -1,72 +1,73 @@
-import { createClient } from "@/lib/supabase-server";
+import { createClient } from "@supabase/supabase-js"
+
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+)
 
 export default async function HomePage() {
-  const supabase = createClient();
-
-  // FEATURED
   const { data: featured } = await supabase
     .from("seller_profiles")
     .select("*")
     .eq("is_active", true)
-    .gte("featured_until", new Date().toISOString())
-    .order("views", { ascending: false })
-    .limit(6);
+    .gt("featured_until", new Date().toISOString())
+    .order("featured_until", { ascending: false })
+    .limit(6)
 
-  // NEW SELLERS
+  const { data: categories } = await supabase
+    .from("categories")
+    .select("*")
+    .limit(6)
+
   const { data: newSellers } = await supabase
     .from("seller_profiles")
     .select("*")
     .eq("is_active", true)
     .order("created_at", { ascending: false })
-    .limit(6);
+    .limit(6)
 
-  // CATEGORIES
-  const { data: categories } = await supabase
-    .from("categories")
-    .select("*")
-    .limit(8);
-
-  // BLOG
-  const { data: blog } = await supabase
+  const { data: blogs } = await supabase
     .from("blog_posts")
     .select("*")
     .eq("published", true)
     .order("created_at", { ascending: false })
-    .limit(3);
+    .limit(3)
 
   return (
-    <main className="max-w-6xl mx-auto px-6 py-16 space-y-20">
+    <main className="max-w-6xl mx-auto px-6">
 
       {/* HERO */}
-      <section className="text-center space-y-4">
-        <h1 className="text-5xl font-bold">
+      <section className="py-20 text-center">
+        <h1 className="text-4xl font-bold mb-4">
           Türkiye'nin Premium Uzman Platformu
         </h1>
-        <p className="text-gray-600">
+        <p className="text-gray-600 mb-8">
           Online ders, spor, freelancer ve danışmanları keşfet.
         </p>
       </section>
 
       {/* FEATURED */}
-      <section>
+      <section className="mb-20">
         <h2 className="text-2xl font-bold mb-6">🔥 Öne Çıkan Uzmanlar</h2>
-        <div className="grid grid-cols-3 gap-6">
+        <div className="grid md:grid-cols-3 gap-6">
           {featured?.map((seller) => (
-            <div key={seller.id} className="p-4 bg-white shadow rounded">
-              <h3 className="font-semibold">{seller.title}</h3>
-              <p>{seller.city}</p>
-              <p className="text-sm text-gray-500">{seller.price}₺</p>
+            <div key={seller.id} className="p-6 border rounded-xl shadow">
+              <h3 className="font-bold text-lg">{seller.title}</h3>
+              <p className="text-sm text-gray-600">{seller.city}</p>
+              <p className="mt-2 text-blue-600 font-semibold">
+                ₺{seller.price}
+              </p>
             </div>
           ))}
         </div>
       </section>
 
       {/* CATEGORIES */}
-      <section>
+      <section className="mb-20">
         <h2 className="text-2xl font-bold mb-6">Kategoriler</h2>
-        <div className="grid grid-cols-4 gap-4">
+        <div className="grid md:grid-cols-3 gap-6">
           {categories?.map((cat) => (
-            <div key={cat.id} className="p-4 bg-gray-100 rounded">
+            <div key={cat.id} className="p-6 border rounded-xl">
               {cat.name}
             </div>
           ))}
@@ -74,34 +75,46 @@ export default async function HomePage() {
       </section>
 
       {/* NEW SELLERS */}
-      <section>
+      <section className="mb-20">
         <h2 className="text-2xl font-bold mb-6">Yeni Uzmanlar</h2>
-        <div className="grid grid-cols-3 gap-6">
+        <div className="grid md:grid-cols-3 gap-6">
           {newSellers?.map((seller) => (
-            <div key={seller.id} className="p-4 bg-white shadow rounded">
-              <h3 className="font-semibold">{seller.title}</h3>
-              <p>{seller.city}</p>
-              <p className="text-sm text-gray-500">{seller.price}₺</p>
+            <div key={seller.id} className="p-6 border rounded-xl">
+              <h3 className="font-bold">{seller.title}</h3>
+              <p className="text-sm text-gray-500">{seller.city}</p>
             </div>
           ))}
         </div>
       </section>
 
       {/* BLOG */}
-      <section>
+      <section className="mb-20">
         <h2 className="text-2xl font-bold mb-6">Blog</h2>
-        <div className="grid grid-cols-3 gap-6">
-          {blog?.map((post) => (
-            <div key={post.id} className="p-4 bg-white shadow rounded">
-              <h3 className="font-semibold">{post.title}</h3>
-              <p className="text-sm text-gray-500">
-                {post.meta_description}
+        <div className="grid md:grid-cols-3 gap-6">
+          {blogs?.map((blog) => (
+            <div key={blog.id} className="p-6 border rounded-xl">
+              <h3 className="font-bold">{blog.title}</h3>
+              <p className="text-sm text-gray-600">
+                {blog.meta_description}
               </p>
             </div>
           ))}
         </div>
       </section>
 
+      {/* CTA */}
+      <section className="text-center py-16 border-t">
+        <h2 className="text-2xl font-bold mb-4">
+          Uzman mısın? Hemen Katıl
+        </h2>
+        <p className="text-gray-600 mb-6">
+          Profil oluştur, müşteri kazanmaya başla.
+        </p>
+        <button className="bg-black text-white px-6 py-3 rounded-lg">
+          Uzman Ol
+        </button>
+      </section>
+
     </main>
-  );
+  )
 }
