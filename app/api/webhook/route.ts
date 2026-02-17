@@ -1,40 +1,40 @@
-import { NextRequest, NextResponse } from "next/server";
-import { createClient } from "@supabase/supabase-js";
+import { NextResponse } from "next/server"
+import { createClient } from "@supabase/supabase-js"
 
-const supabase = createClient(
-  process.env.SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY! // ÖNEMLİ
-);
+export const dynamic = "force-dynamic"
+export const runtime = "nodejs"
 
-export async function POST(req: NextRequest) {
+export async function POST(req: Request) {
   try {
-    const body = await req.json();
+    const body = await req.json()
 
-    const eventType = body.event_type;
+    const supabase = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!
+    )
 
-    // Subscription created veya updated event
-    if (eventType === "subscription.created" || eventType === "subscription.updated") {
+    // Paddle ödeme başarılıysa
+    if (body.event_type === "transaction.completed") {
+      const sellerId = body.data?.custom_data?.seller_id
 
-      const userId = body.data.custom_data?.user_id;
+      if (!sellerId) {
+        return NextResponse.json({ error: "seller_id missing" })
+      }
 
-      // 30 gün featured ver
-      const featuredUntil = new Date();
-      featuredUntil.setDate(featuredUntil.getDate() + 30);
+      const expires = new Date()
+      expires.setDate(expires.getDate() + 7)
 
       await supabase
         .from("seller_profiles")
         .update({
-          featured_until: featuredUntil.toISOString()
+          featured_until: expires.toISOString()
         })
-        .eq("user_id", userId);
-
-      return NextResponse.json({ success: true });
+        .eq("id", sellerId)
     }
 
-    return NextResponse.json({ received: true });
-
+    return NextResponse.json({ success: true })
   } catch (error) {
-    console.error("Webhook error:", error);
-    return NextResponse.json({ error: "Webhook failed" }, { status: 500 });
+    console.error(error)
+    return NextResponse.json({ error: "Webhook error" }, { status: 500 })
   }
 }
