@@ -1,30 +1,25 @@
-import { supabase } from "@/lib/supabase";
+"use client";
+import { useState } from "react";
 
-export default async function Profile({ params }: any) {
-  const { data } = await supabase
-    .from("seller_profiles")
-    .select("*")
-    .eq("slug", params.slug)
-    .single();
+export default function SellerDetail({ params }: any) {
+  const [date, setDate] = useState("");
 
-  await supabase
-    .from("seller_profiles")
-    .update({ views: data.views + 1 })
-    .eq("id", data.id);
+  const book = async () => {
+    await fetch("/api/book", {
+      method: "POST",
+      body: JSON.stringify({
+        seller_id: params.id,
+        appointment_time: date,
+      }),
+    });
+    alert("Randevu alındı");
+  };
 
   return (
-    <div className="max-w-4xl mx-auto p-8">
-      <h1 className="text-3xl font-bold">{data.title}</h1>
-      <p>{data.description}</p>
-      <p>{data.city}</p>
-      <p className="font-bold">{data.price} TL</p>
-
-      <form action="/api/lead" method="POST">
-        <input type="hidden" name="seller_id" value={data.id}/>
-        <button className="bg-black text-white px-6 py-3 mt-4 rounded-lg">
-          İletişime Geç
-        </button>
-      </form>
+    <div>
+      <h1>Uzman Detay</h1>
+      <input type="datetime-local" onChange={(e) => setDate(e.target.value)} />
+      <button onClick={book}>Randevu Al</button>
     </div>
   );
 }
