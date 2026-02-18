@@ -1,51 +1,42 @@
 body {
   margin: 0;
   font-family: -apple-system, BlinkMacSystemFont, sans-serif;
-  background: linear-gradient(135deg, #f5f7fa, #e4ecf5);
+  background: #0f172a;
+  color: white;
 }
 
-.admin-container {
-  padding: 50px;
+.container {
+  padding: 60px;
 }
 
-.admin-cards {
-  display: flex;
-  gap: 20px;
-  margin-bottom: 40px;
+.grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 30px;
 }
 
-.admin-card {
-  background: rgba(255, 255, 255, 0.6);
+.card {
+  background: rgba(255,255,255,0.05);
   backdrop-filter: blur(20px);
-  border-radius: 20px;
-  padding: 30px;
-  flex: 1;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+  padding: 20px;
+  border-radius: 16px;
+  transition: 0.3s;
 }
 
-.admin-card h3 {
-  margin-bottom: 10px;
+.card:hover {
+  transform: translateY(-5px);
 }
 
-.admin-card p {
-  font-size: 28px;
-  font-weight: bold;
+.badge {
+  margin-left: 10px;
+  color: gold;
 }
 
-.admin-table {
-  width: 100%;
-  border-collapse: collapse;
-  background: white;
-  border-radius: 15px;
-  overflow: hidden;
-}
-
-.admin-table th,
-.admin-table td {
-  padding: 15px;
-  border-bottom: 1px solid #eee;
-}
-
-.admin-table tr:hover {
-  background: #f5f7fa;
+.premium-btn {
+  background: linear-gradient(90deg,#9333ea,#ec4899);
+  border: none;
+  padding: 12px 24px;
+  border-radius: 10px;
+  color: white;
+  cursor: pointer;
 }
