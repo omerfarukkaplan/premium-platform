@@ -120,3 +120,17 @@ copyright {
 body {
   background: linear-gradient(135deg,#f1f5f9,#e2e8f0);
 }
+
+.auth-container {
+  max-width: 400px;
+  margin: 80px auto;
+  padding: 40px;
+  border-radius: 20px;
+  backdrop-filter: blur(15px);
+  background: rgba(255,255,255,0.6);
+}
+
+.modal {
+  padding: 30px;
+  border-radius: 20px;
+}
