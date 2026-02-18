@@ -1,60 +1,74 @@
-"use client"
+import "./globals.css";
+import Script from "next/script";
+import Link from "next/link";
 
-import { useEffect } from "react"
+export const metadata = {
+  title: "FollowOps",
+  description: "Türkiye'nin Premium Uzman Platformu",
+};
 
-declare global {
-  interface Window {
-    Paddle: any
-  }
-}
-
-export default function SellerDashboard() {
-  useEffect(() => {
-    const script = document.createElement("script")
-    script.src = "https://cdn.paddle.com/paddle/v2/paddle.js"
-    script.async = true
-    script.onload = () => {
-      if (window.Paddle) {
-        window.Paddle.Environment.set("sandbox") // production'da sil
-        window.Paddle.Initialize({
-          seller: Number(process.env.NEXT_PUBLIC_PADDLE_VENDOR_ID),
-        })
-      }
-    }
-    document.body.appendChild(script)
-  }, [])
-
-  const handleUpgrade = () => {
-    if (!window.Paddle) return
-
-    window.Paddle.Checkout.open({
-      items: [{ priceId: "pri_xxxxx" }], // Paddle product price id
-      settings: {
-        displayMode: "overlay",
-      },
-    })
-  }
-
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return (
-    <div className="max-w-5xl mx-auto px-6 py-16">
-      <h1 className="text-3xl font-bold mb-6">Satıcı Paneli</h1>
+    <html lang="tr">
+      <body>
+        {/* Paddle Script */}
+        <Script
+          src="https://cdn.paddle.com/paddle/v2/paddle.js"
+          strategy="afterInteractive"
+        />
 
-      <div className="bg-white shadow rounded-xl p-8">
-        <h2 className="text-xl font-semibold mb-4">
-          Premium Öne Çıkarma
-        </h2>
+        <header className="header">
+          <div className="container nav">
+            <Link href="/" className="logo">FollowOps</Link>
 
-        <p className="text-neutral-600 mb-6">
-          Profilinizi ana sayfada en üstte gösterin.
-        </p>
+            <nav>
+              <Link href="/kategoriler">Kategoriler</Link>
+              <Link href="/blog">Blog</Link>
+              <Link href="/panel">Panel</Link>
+              <Link href="/satici" className="btn-dark">
+                Hizmet Sat
+              </Link>
+            </nav>
+          </div>
+        </header>
 
-        <button
-          onClick={handleUpgrade}
-          className="bg-black text-white px-6 py-3 rounded-lg hover:bg-neutral-800 transition"
-        >
-          Premium Satın Al
-        </button>
-      </div>
-    </div>
-  )
+        <main>{children}</main>
+
+        <footer className="footer">
+          <div className="container footer-grid">
+            <div>
+              <h4>FollowOps</h4>
+              <p>Türkiye'nin premium uzman platformu.</p>
+            </div>
+
+            <div>
+              <h4>Platform</h4>
+              <Link href="/kategoriler">Kategoriler</Link>
+              <Link href="/blog">Blog</Link>
+            </div>
+
+            <div>
+              <h4>Satıcı</h4>
+              <Link href="/satici">Satıcı Paneli</Link>
+              <Link href="/dashboard">Dashboard</Link>
+            </div>
+
+            <div>
+              <h4>Yasal</h4>
+              <p>Gizlilik</p>
+              <p>Kullanım Şartları</p>
+            </div>
+          </div>
+
+          <p className="copyright">
+            © 2026 FollowOps
+          </p>
+        </footer>
+      </body>
+    </html>
+  );
 }
