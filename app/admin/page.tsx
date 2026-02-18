@@ -1,24 +1,52 @@
 import { createClient } from "@supabase/supabase-js";
 
-export default async function AdminPage() {
-  const supabase = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!
-  );
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
+);
 
-  const { data } = await supabase.from("seller_profiles").select("*");
+export default async function AdminPage() {
+  const { data: sellers } = await supabase
+    .from("seller_profiles")
+    .select("*");
+
+  const premiumCount =
+    sellers?.filter((s) => s.is_premium).length || 0;
 
   return (
-    <div className="container">
-      <h1>Admin Panel</h1>
-      <div className="grid">
-        {data?.map((s)=>(
-          <div key={s.id} className="card">
-            <h3>{s.title}</h3>
-            <p>Premium: {s.is_premium ? "Evet" : "Hayır"}</p>
-          </div>
-        ))}
+    <div className="admin-container">
+      <h1>Admin Dashboard</h1>
+
+      <div className="admin-cards">
+        <div className="admin-card">
+          <h3>Toplam Satıcı</h3>
+          <p>{sellers?.length || 0}</p>
+        </div>
+
+        <div className="admin-card">
+          <h3>Premium Satıcı</h3>
+          <p>{premiumCount}</p>
+        </div>
       </div>
+
+      <table className="admin-table">
+        <thead>
+          <tr>
+            <th>Başlık</th>
+            <th>Premium</th>
+            <th>Fiyat</th>
+          </tr>
+        </thead>
+        <tbody>
+          {sellers?.map((seller) => (
+            <tr key={seller.id}>
+              <td>{seller.title}</td>
+              <td>{seller.is_premium ? "✔" : "-"}</td>
+              <td>₺{seller.price}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
     </div>
   );
 }
