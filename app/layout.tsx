@@ -1,128 +1,60 @@
-import "./globals.css"
-import type { Metadata } from "next"
-import { Inter } from "next/font/google"
-import Link from "next/link"
+"use client"
 
-const inter = Inter({ subsets: ["latin"] })
+import { useEffect } from "react"
 
-export const metadata: Metadata = {
-  title: "FollowOps | Türkiye'nin Premium Uzman Platformu",
-  description:
-    "Online ders, spor, freelancer ve danışmanlık hizmetleri sunan premium uzmanları keşfet.",
-  keywords: [
-    "uzman",
-    "danışman",
-    "online ders",
-    "freelancer",
-    "premium hizmet",
-  ],
-  metadataBase: new URL("https://followops.app"),
-  openGraph: {
-    title: "FollowOps Premium Uzman Platformu",
-    description:
-      "En iyi uzmanları keşfet, hizmet satın al veya kendi hizmetini sat.",
-    url: "https://followops.app",
-    siteName: "FollowOps",
-    locale: "tr_TR",
-    type: "website",
-  },
+declare global {
+  interface Window {
+    Paddle: any
+  }
 }
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode
-}) {
+export default function SellerDashboard() {
+  useEffect(() => {
+    const script = document.createElement("script")
+    script.src = "https://cdn.paddle.com/paddle/v2/paddle.js"
+    script.async = true
+    script.onload = () => {
+      if (window.Paddle) {
+        window.Paddle.Environment.set("sandbox") // production'da sil
+        window.Paddle.Initialize({
+          seller: Number(process.env.NEXT_PUBLIC_PADDLE_VENDOR_ID),
+        })
+      }
+    }
+    document.body.appendChild(script)
+  }, [])
+
+  const handleUpgrade = () => {
+    if (!window.Paddle) return
+
+    window.Paddle.Checkout.open({
+      items: [{ priceId: "pri_xxxxx" }], // Paddle product price id
+      settings: {
+        displayMode: "overlay",
+      },
+    })
+  }
+
   return (
-    <html lang="tr">
-      <body
-        className={`${inter.className} bg-neutral-50 text-neutral-900 antialiased`}
-      >
-        {/* NAVBAR */}
-        <header className="border-b bg-white/80 backdrop-blur sticky top-0 z-50">
-          <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
-            <Link href="/" className="text-xl font-bold tracking-tight">
-              FollowOps
-            </Link>
+    <div className="max-w-5xl mx-auto px-6 py-16">
+      <h1 className="text-3xl font-bold mb-6">Satıcı Paneli</h1>
 
-            <nav className="hidden md:flex items-center gap-6 text-sm">
-              <Link href="/kategoriler" className="hover:text-black/70">
-                Kategoriler
-              </Link>
-              <Link href="/blog" className="hover:text-black/70">
-                Blog
-              </Link>
-              <Link href="/dashboard" className="hover:text-black/70">
-                Panel
-              </Link>
-              <Link
-                href="/satici"
-                className="bg-black text-white px-4 py-2 rounded-lg hover:bg-black/90 transition"
-              >
-                Hizmet Sat
-              </Link>
-            </nav>
-          </div>
-        </header>
+      <div className="bg-white shadow rounded-xl p-8">
+        <h2 className="text-xl font-semibold mb-4">
+          Premium Öne Çıkarma
+        </h2>
 
-        {/* MAIN CONTENT */}
-        <main className="min-h-screen">{children}</main>
+        <p className="text-neutral-600 mb-6">
+          Profilinizi ana sayfada en üstte gösterin.
+        </p>
 
-        {/* FOOTER */}
-        <footer className="border-t bg-white mt-20">
-          <div className="max-w-7xl mx-auto px-6 py-10 grid md:grid-cols-4 gap-8 text-sm text-neutral-600">
-            <div>
-              <h3 className="font-semibold text-black mb-3">
-                FollowOps
-              </h3>
-              <p>
-                Türkiye'nin premium uzman platformu. Güvenli ödeme, kaliteli
-                hizmet.
-              </p>
-            </div>
-
-            <div>
-              <h4 className="font-medium text-black mb-2">Platform</h4>
-              <ul className="space-y-2">
-                <li>
-                  <Link href="/kategoriler">Kategoriler</Link>
-                </li>
-                <li>
-                  <Link href="/blog">Blog</Link>
-                </li>
-              </ul>
-            </div>
-
-            <div>
-              <h4 className="font-medium text-black mb-2">Satıcı</h4>
-              <ul className="space-y-2">
-                <li>
-                  <Link href="/satici">Satıcı Paneli</Link>
-                </li>
-                <li>
-                  <Link href="/dashboard">Dashboard</Link>
-                </li>
-              </ul>
-            </div>
-
-            <div>
-              <h4 className="font-medium text-black mb-2">Yasal</h4>
-              <ul className="space-y-2">
-                <li>
-                  <Link href="/gizlilik">Gizlilik</Link>
-                </li>
-                <li>
-                  <Link href="/kullanim">Kullanım Şartları</Link>
-                </li>
-              </ul>
-            </div>
-          </div>
-
-          <div className="text-center py-4 text-xs text-neutral-400 border-t">
-            © {new Date().getFullYear()} FollowOps. Tüm hakları saklıdır.
-          </div>
-        </footer>
-      </body>
-    </html>
+        <button
+          onClick={handleUpgrade}
+          className="bg-black text-white px-6 py-3 rounded-lg hover:bg-neutral-800 transition"
+        >
+          Premium Satın Al
+        </button>
+      </div>
+    </div>
   )
 }
